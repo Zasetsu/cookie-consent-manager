@@ -50,6 +50,8 @@ This package is a preference collection tool. It can support KVKK/GDPR complianc
 npm install @zasetsu/cookie-consent-manager
 ```
 
+The npm package for this project is `@zasetsu/cookie-consent-manager`. The unscoped `cookie-consent-manager` package on npm is a different package and is not maintained by this project.
+
 ---
 
 ## Quick Start
@@ -289,12 +291,46 @@ CookieConsentManager.init({
 
 ### 5. Laravel Blade Integration
 
-This package is not Laravel-specific, but it can be used in a Blade layout like any other browser-side script.
+This package is not Laravel-specific. In Laravel projects that use Vite, prefer importing the ESM build in your application bundle.
+
+Expose server-defined categories from Blade before your Vite entry:
+
+```blade
+<script>
+  window.cookieCategories = @json($cookieCategories);
+  window.cookiePolicyUrl = '{{ asset("storage/cookies/policy.pdf") }}';
+</script>
+@vite('resources/js/app.js')
+```
+
+Then initialize the package from your bundle:
+
+```javascript
+import CookieConsentManager from '@zasetsu/cookie-consent-manager';
+
+CookieConsentManager.init({
+  language: 'en',
+  categories: window.cookieCategories || [],
+  policyUrl: window.cookiePolicyUrl,
+  onReady(payload) {
+    if (payload?.preferences.analytics) {
+      window.dispatchEvent(new CustomEvent('cookie-preferences:analytics-accepted'));
+    }
+  },
+  onSave({ preferences }) {
+    if (preferences.analytics) {
+      window.dispatchEvent(new CustomEvent('cookie-preferences:analytics-accepted'));
+    }
+  }
+});
+```
+
+If you need to use a plain Blade `<script>` tag, copy the UMD build from `node_modules/@zasetsu/cookie-consent-manager/dist/cookie-consent-manager.umd.js` into your public assets and reference that copied file:
 
 ```blade
 {{-- resources/views/layouts/app.blade.php --}}
 
-<script src="{{ asset('vendor/cookie-consent-manager/cookie-consent-manager.umd.js') }}"></script>
+<script src="{{ asset('vendor/zasetsu/cookie-consent-manager/cookie-consent-manager.umd.js') }}"></script>
 <script>
   CookieConsentManager.init({
     language: 'en',
