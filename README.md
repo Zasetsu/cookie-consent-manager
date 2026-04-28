@@ -1,48 +1,50 @@
 # cookie-consent-manager
 
-Çerçeve bağımsız, hafif çerez onay tercihi toplama ve saklama modülü. KVKK ve GDPR uyumluluğunu destekleyen tercih toplama aracı olarak çerez banner'ı ve tercih yönetim paneli sunar.
+A lightweight, framework-agnostic module for collecting and storing cookie consent preferences. It provides a cookie banner and preference management modal that can support KVKK/GDPR compliance workflows.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
 [![npm version](https://img.shields.io/npm/v/cookie-consent-manager.svg)](https://www.npmjs.com/package/cookie-consent-manager)
 
 ---
 
-## İçindekiler
+## Table of Contents
 
-- [Temel İlke](#temel-i̇lke)
-- [Kurulum](#kurulum)
-- [Hızlı Başlangıç](#hızlı-başlangıç)
-- [Kullanım Örnekleri](#kullanım-örnekleri)
+- [Core Principle](#core-principle)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage Examples](#usage-examples)
   - [Vanilla HTML (UMD)](#1-vanilla-html-umd)
   - [ESM / Bundler](#2-esm--bundler)
-  - [Çok Dilli Kategori Tanımlama](#3-çok-dilli-kategori-tanimlama)
-  - [Yeni Dil Ekleme](#4-yeni-dil-ekleme)
-  - [Laravel Blade Entegrasyonu](#5-laravel-blade-entegrasyonu)
-  - [Sunucu Tarafında Çerez Okuma](#6-sunucu-tarafinda-cerez-okuma)
-- [API Referansı](#api-referansı)
-  - [Statik Metotlar](#statik-metotlar)
-  - [Yapılandırma (CookieConsentConfig)](#yapilandirma-cookieconsentconfig)
-  - [Kategori Yapılandırması (CategoryConfig)](#kategori-yapilandirmasi-categoryconfig)
-  - [Çerez Öğesi (CookieItem)](#cerez-ogesi-cookieitem)
-  - [Tema Yapılandırması (ThemeConfig)](#tema-yapilandirmasi-themeconfig)
-  - [Onay Verisi (ConsentPayload)](#onay-verisi-consentpayload)
-- [Yazılan Çerezler](#yazilan-cerezler)
-- [Geri Çağırma (Callback) Yaşam Döngüsü](#geri-cagirma-callback-yasam-dongusu)
-- [CSP Uyumluluğu](#csp-uyumlulugu)
-- [Başlık Görseli (Header Image)](#başlik-gorseli-header-image)
-- [Çoklu Dil (i18n) Çözümleme](#çoklu-dil-i18n-cözümleme)
-- [Geliştirici Sorumluluğu](#geliştirici-sorumlulugu)
-- [Lisans](#lisans)
+  - [Localized Category Definitions](#3-localized-category-definitions)
+  - [Adding a Language](#4-adding-a-language)
+  - [Laravel Blade Integration](#5-laravel-blade-integration)
+  - [Reading Cookies Server-Side](#6-reading-cookies-server-side)
+- [API Reference](#api-reference)
+  - [Static Methods](#static-methods)
+  - [Configuration (CookieConsentConfig)](#configuration-cookieconsentconfig)
+  - [Category Configuration (CategoryConfig)](#category-configuration-categoryconfig)
+  - [Cookie Item (CookieItem)](#cookie-item-cookieitem)
+  - [Theme Configuration (ThemeConfig)](#theme-configuration-themeconfig)
+  - [Consent Payload (ConsentPayload)](#consent-payload-consentpayload)
+- [Written Cookies](#written-cookies)
+- [Callback Lifecycle](#callback-lifecycle)
+- [CSP Compatibility](#csp-compatibility)
+- [Header Image](#header-image)
+- [Internationalization (i18n)](#internationalization-i18n)
+- [Developer Responsibility](#developer-responsibility)
+- [License](#license)
 
 ---
 
-## Temel İlke
+## Core Principle
 
-> **Bu paket yalnızca kullanıcının çerez onay tercihlerini toplar ve kalıcı çerez olarak saklar.** Herhangi bir üçüncü parti betiği enjekte etmez, kaldırmaz veya engellemez. Geliştirici, tercih çerezlerini okuyarak veya callback'leri kullanarak kendi betiklerini koşullu olarak yükler.
+> **This package only collects the user's cookie consent preferences and stores them as consent cookies.** It does not inject, remove, delete, or block any third-party script, cookie, or network request. Developers are responsible for loading their own integrations conditionally by reading the preference cookies or using the package callbacks.
+
+This package is a preference collection tool. It can support KVKK/GDPR compliance workflows, but it is not a legal compliance guarantee by itself.
 
 ---
 
-## Kurulum
+## Installation
 
 ```bash
 npm install cookie-consent-manager
@@ -50,29 +52,29 @@ npm install cookie-consent-manager
 
 ---
 
-## Hızlı Başlangıç
+## Quick Start
 
 ```html
 <script src="node_modules/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
 <script>
   CookieConsentManager.init({
-    language: 'tr',
+    language: 'en',
     categories: [
       {
         id: 'required',
         required: true,
-        title: 'Gerekli Çerezler',
-        description: 'Bu çerezler web sitesinin temel işlevleri için gereklidir.',
+        title: 'Required Cookies',
+        description: 'These cookies are required for the core functions of the website.',
         cookies: [
-          { name: 'XSRF-TOKEN', provider: 'Site', purpose: 'Güvenlik', expiry: 'Oturum', party: 'first' }
+          { name: 'XSRF-TOKEN', provider: 'Site', purpose: 'Security', expiry: 'Session', party: 'first' }
         ]
       },
       {
         id: 'analytics',
-        title: 'Analitik Çerezler',
-        description: 'Bu çerezler, web sitemizin nasıl kullanıldığını anlamamıza yardımcı olur.',
+        title: 'Analytics Cookies',
+        description: 'These cookies help us understand how our website is used.',
         cookies: [
-          { name: '_ga', provider: 'Google Analytics', purpose: 'Ziyaretçi analizi', expiry: '2 yıl', party: 'third' }
+          { name: '_ga', provider: 'Google Analytics', purpose: 'Visitor analytics', expiry: '2 years', party: 'third' }
         ]
       }
     ],
@@ -89,42 +91,42 @@ npm install cookie-consent-manager
 
 ---
 
-## Kullanım Örnekleri
+## Usage Examples
 
 ### 1. Vanilla HTML (UMD)
 
-UMD derlemesi, `CookieConsentManager` global değişkenini oluşturur. Doğrudan `<script>` etiketi ile kullanılabilir.
+The UMD build exposes a global `CookieConsentManager` object. It can be used directly with a `<script>` tag.
 
 ```html
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Örnek Site</title>
+  <title>Example Site</title>
 </head>
 <body>
-  <h1>Web Sitem</h1>
+  <h1>My Website</h1>
 
   <script src="node_modules/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
   <script>
     CookieConsentManager.init({
-      language: 'tr',
+      language: 'en',
       categories: [
         {
           id: 'required',
           required: true,
-          title: 'Gerekli Çerezler',
-          description: 'Bu çerezler web sitesinin temel işlevleri için gereklidir ve devre dışı bırakılamaz.',
+          title: 'Required Cookies',
+          description: 'These cookies are required for the core functions of the website and cannot be disabled.',
           cookies: [
-            { name: 'XSRF-TOKEN', provider: 'Site', purpose: 'Güvenlik', expiry: 'Oturum', party: 'first' }
+            { name: 'XSRF-TOKEN', provider: 'Site', purpose: 'Security', expiry: 'Session', party: 'first' }
           ]
         },
         {
           id: 'analytics',
-          title: 'Analitik Çerezler',
-          description: 'Bu çerezler, web sitemizin nasıl kullanıldığını anlamamıza yardımcı olur.',
+          title: 'Analytics Cookies',
+          description: 'These cookies help us understand how our website is used.',
           cookies: [
-            { name: '_ga', provider: 'Google Analytics', purpose: 'Ziyaretçi analizi', expiry: '2 yıl', party: 'third' }
+            { name: '_ga', provider: 'Google Analytics', purpose: 'Visitor analytics', expiry: '2 years', party: 'third' }
           ]
         }
       ],
@@ -138,6 +140,9 @@ UMD derlemesi, `CookieConsentManager` global değişkenini oluşturur. Doğrudan
     });
 
     function loadAnalytics() {
+      if (window.__analyticsLoaded) return;
+      window.__analyticsLoaded = true;
+
       const script = document.createElement('script');
       script.src = 'https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX';
       script.async = true;
@@ -150,7 +155,7 @@ UMD derlemesi, `CookieConsentManager` global değişkenini oluşturur. Doğrudan
 
 ### 2. ESM / Bundler
 
-Vite, Webpack, Rollup gibi modern derleyiciler ile kullanım:
+Use the ESM build with modern bundlers such as Vite, Webpack, or Rollup.
 
 ```typescript
 import CookieConsentManager from 'cookie-consent-manager';
@@ -186,27 +191,27 @@ CookieConsentManager.init({
 });
 ```
 
-### 3. Çok Dilli Kategori Tanımlama
+### 3. Localized Category Definitions
 
-Kategori ve çerez metinleri, `string` (tek dil) veya `{ tr: '...', en: '...' }` (çok dil) olarak tanımlanabilir:
+Category and cookie text can be defined as either a plain `string` for one language or an object such as `{ tr: '...', en: '...' }` for multiple languages.
 
 ```typescript
 CookieConsentManager.init({
-  language: 'tr',
+  language: 'en',
   categories: [
     {
       id: 'analytics',
-      title: { tr: 'Analitik Çerezler', en: 'Analytics Cookies' },
+      title: { en: 'Analytics Cookies', de: 'Analyse-Cookies' },
       description: {
-        tr: 'Bu çerezler, web sitemizin nasıl kullanıldığını anlamamıza yardımcı olur.',
-        en: 'These cookies help us understand how our website is used.'
+        en: 'These cookies help us understand how our website is used.',
+        de: 'Diese Cookies helfen uns zu verstehen, wie unsere Website genutzt wird.'
       },
       cookies: [
         {
           name: '_ga',
-          provider: { tr: 'Google Analitik', en: 'Google Analytics' },
-          purpose: { tr: 'Analiz', en: 'Analytics' },
-          expiry: { tr: '2 yıl', en: '2 years' },
+          provider: { en: 'Google Analytics', de: 'Google Analytics' },
+          purpose: { en: 'Analytics', de: 'Analyse' },
+          expiry: { en: '2 years', de: '2 Jahre' },
           party: 'third'
         }
       ]
@@ -215,15 +220,15 @@ CookieConsentManager.init({
 });
 ```
 
-Dil değişimi:
+Switch language at runtime:
 
 ```typescript
-CookieConsentManager.setLanguage('en'); // Arayüz ve kategori metinleri İngilizceye geçer
+CookieConsentManager.setLanguage('tr');
 ```
 
-### 4. Yeni Dil Ekleme
+### 4. Adding a Language
 
-`translations` alanı ile mevcut dillerin üzerine yazabilir veya tamamen yeni bir dil ekleyebilirsiniz. Tüm `TranslationSet` anahtarlarını sağlamanız gerekir:
+Use the `translations` option to override existing languages or add a new UI language. The type is `Record<string, DeepPartial<TranslationSet>>`, so you may provide only the keys you want to override. Missing keys fall back to built-in translations.
 
 ```typescript
 CookieConsentManager.init({
@@ -231,28 +236,30 @@ CookieConsentManager.init({
   translations: {
     de: {
       banner: {
-        description: 'Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website zu bieten.',
+        description: 'Wir verwenden Cookies, um Ihnen die bestmogliche Erfahrung auf unserer Website zu bieten. {policyLink}',
         acceptAll: 'Alle akzeptieren',
         rejectAll: 'Alle ablehnen',
-        manage: 'Verwalten'
+        manage: 'Verwalten',
+        ariaLabel: 'Cookie-Einwilligung'
       },
       modal: {
         title: 'Cookie-Einstellungen',
-        requiredNote: 'Diese Cookies sind für die Grundfunktionen der Website erforderlich.',
+        requiredNote: 'Diese Cookies sind fur die Grundfunktionen der Website erforderlich.',
         optionalNote: 'Diese Cookies helfen uns zu verstehen, wie unsere Website genutzt wird.',
         savePreferences: 'Einstellungen speichern',
         acceptAll: 'Alle akzeptieren',
         rejectAll: 'Alle ablehnen',
         policyLink: 'Um die Cookie-Richtlinie anzuzeigen,',
         policyClick: 'klicken Sie hier',
-        policyDocument: 'Cookie-Aufklärungstext'
+        policyDocument: 'Cookie-Richtlinie',
+        close: 'Schliessen'
       },
       table: {
         cookieName: 'Cookie-Name',
         provider: 'Anbieter',
         description: 'Beschreibung',
         purpose: 'Zweck',
-        expiry: 'Gültigkeit',
+        expiry: 'Gultigkeit',
         party: 'Partei',
         firstParty: 'Erste Partei',
         thirdParty: 'Dritte Partei',
@@ -280,7 +287,9 @@ CookieConsentManager.init({
 });
 ```
 
-### 5. Laravel Blade Entegrasyonu
+### 5. Laravel Blade Integration
+
+This package is not Laravel-specific, but it can be used in a Blade layout like any other browser-side script.
 
 ```blade
 {{-- resources/views/layouts/app.blade.php --}}
@@ -288,9 +297,9 @@ CookieConsentManager.init({
 <script src="{{ asset('vendor/cookie-consent-manager/cookie-consent-manager.umd.js') }}"></script>
 <script>
   CookieConsentManager.init({
-    language: 'tr',
+    language: 'en',
     categories: @json($cookieCategories),
-    policyUrl: '{{ asset("storage/cerez/politika.pdf") }}',
+    policyUrl: '{{ asset("storage/cookies/policy.pdf") }}',
     onReady(payload) {
       if (payload?.preferences.analytics) {
         window.dispatchEvent(new CustomEvent('cookie-preferences:analytics-accepted'));
@@ -305,7 +314,7 @@ CookieConsentManager.init({
 </script>
 ```
 
-Kategorileri denetleyiciden göndermek için:
+Passing categories from a controller:
 
 ```php
 public function index()
@@ -315,18 +324,18 @@ public function index()
             [
                 'id' => 'required',
                 'required' => true,
-                'title' => 'Gerekli Çerezler',
-                'description' => 'Bu çerezler web sitesinin temel işlevleri için gereklidir.',
+                'title' => 'Required Cookies',
+                'description' => 'These cookies are required for the core functions of the website.',
                 'cookies' => [
-                    ['name' => 'XSRF-TOKEN', 'provider' => 'Site', 'purpose' => 'Güvenlik', 'expiry' => 'Oturum', 'party' => 'first']
+                    ['name' => 'XSRF-TOKEN', 'provider' => 'Site', 'purpose' => 'Security', 'expiry' => 'Session', 'party' => 'first']
                 ]
             ],
             [
                 'id' => 'analytics',
-                'title' => 'Analitik Çerezler',
-                'description' => 'Bu çerezler kullanım istatistiklerini toplar.',
+                'title' => 'Analytics Cookies',
+                'description' => 'These cookies collect usage statistics.',
                 'cookies' => [
-                    ['name' => '_ga', 'provider' => 'Google Analytics', 'purpose' => 'Analiz', 'expiry' => '2 yıl', 'party' => 'third']
+                    ['name' => '_ga', 'provider' => 'Google Analytics', 'purpose' => 'Analytics', 'expiry' => '2 years', 'party' => 'third']
                 ]
             ]
         ]
@@ -334,25 +343,37 @@ public function index()
 }
 ```
 
-### 6. Sunucu Tarafında Çerez Okuma
+### 6. Reading Cookies Server-Side
 
-Paket yalnızca tercih çerezlerini yazar; sunucu tarafında bu çerezleri okuyarak betik yüklemesini kontrol edebilirsiniz.
+The package only writes preference cookies. You can read those cookies server-side to decide whether to render or load optional integrations.
 
-**Genel örnek (herhangi bir framework):**
+**Generic cookie example:**
 
-```
+```http
 Cookie: ccm_decision=accepted_all; ccm_preferences=%7B%22analytics%22%3Atrue%7D
 ```
 
-Cookie değeri URL-encoded olarak yazılır. Okurken önce `urldecode`, sonra `json_decode` uygulayın.
+Cookie values are URL-encoded when written by the browser. When reading raw cookies server-side, decode the value before parsing JSON.
 
-**Laravel örneği:**
+**Generic PHP example:**
 
 ```php
-$preferences = json_decode(urldecode(request()->cookie('ccm_preferences')), true);
+$raw = $_COOKIE['ccm_preferences'] ?? null;
+$preferences = $raw ? json_decode(urldecode($raw), true) : [];
 
 if ($preferences['analytics'] ?? false) {
-    // Analitik betiklerini yükle
+    // Load analytics scripts.
+}
+```
+
+**Laravel example:**
+
+```php
+$raw = request()->cookie('ccm_preferences');
+$preferences = $raw ? json_decode(urldecode($raw), true) : [];
+
+if ($preferences['analytics'] ?? false) {
+    // Load analytics scripts.
 }
 ```
 
@@ -360,18 +381,20 @@ if ($preferences['analytics'] ?? false) {
 $decision = request()->cookie('ccm_decision');
 
 if ($decision === 'accepted_all') {
-    // Tüm üçüncü parti betikleri yükle
+    // Load all optional third-party scripts.
 }
 ```
 
-Middleware ile otomatik kontrol:
+Example middleware pattern:
 
 ```php
 class CheckCookieConsent
 {
     public function handle($request, Closure $next)
     {
-        $preferences = json_decode(urldecode($request->cookie('ccm_preferences')), true);
+        $raw = $request->cookie('ccm_preferences');
+        $preferences = $raw ? json_decode(urldecode($raw), true) : [];
+
         View::share('cookieConsent', [
             'analytics' => $preferences['analytics'] ?? false,
             'marketing' => $preferences['marketing'] ?? false,
@@ -382,94 +405,94 @@ class CheckCookieConsent
 }
 ```
 
-> **Tarayıcıda `CookieConsentManager.getPreferences()` decoded JSON döner.** Ancak server-side framework raw cookie okuyorsa `urldecode` gerekebilir çünkü cookie değeri URL-encoded olarak yazılır.
+> In the browser, `CookieConsentManager.getPreferences()` returns decoded preferences. On the server, raw cookie values may still require `urldecode` because the browser writes the JSON value in URL-encoded form.
 
-> **Bazı server-side framework'ler** client-side yazılan cookie'leri kendi cookie middleware, parser veya encryption katmanlarıyla farklı işleyebilir. Server tarafında `ccm_preferences` okunacaksa framework'ün raw cookie okuma davranışı kontrol edilmelidir.
-
----
-
-## API Referansı
-
-### Statik Metotlar
-
-| Metot | Açıklama |
-|-------|----------|
-| `CookieConsentManager.init(config)` | Banner'ı başlatır. Daha önce onay verilmişse `onReady` callback'ine `ConsentPayload` gönderilir; verilmemişse banner gösterilir ve `onReady`'ye `null` gönderilir. Tekrar çağrılırsa önceki örnek yok edilir. |
-| `CookieConsentManager.destroy()` | Banner/modal DOM'dan kaldırılır, stiller silinir, örnek sıfırlanır. Çerezler silinmez. |
-| `CookieConsentManager.setLanguage(lang)` | Çalışma zamanında arayüz dilini değiştirir. Banner/modal yeniden oluşturulur. |
-| `CookieConsentManager.getPreferences()` | Kaydedilmiş tercihleri döndürür. Onay yoksa `null` döner. |
-| `CookieConsentManager.reset()` | Tercih çerezlerini siler ve banner'ı yeniden gösterir. |
+> Some server-side frameworks process cookies through middleware, parsers, signing, or encryption layers. If you read `ccm_preferences` on the server, verify how your framework exposes client-written cookies.
 
 ---
 
-### Yapılandırma (CookieConsentConfig)
+## API Reference
 
-| Özellik | Tür | Varsayılan | Açıklama |
-|---------|-----|-----------|----------|
-| `categories` | `CategoryConfig[]` | — | **Zorunlu.** Çerez kategorileri. |
-| `domain` | `string` | `undefined` | Çerez domain'i. Boş bırakılırsa host-only çerez olur (localhost/IP için önerilir). |
-| `path` | `string` | `'/'` | Çerez yolu. |
-| `cookieExpiry` | `number` | `365` | Çerez geçerlilik süresi (gün). |
-| `cookiePrefix` | `string` | `'ccm_'` | Çerez adı ön eki. |
-| `sameSite` | `'Lax' \| 'Strict' \| 'None'` | `'Lax'` | SameSite özniteliği. `SameSite=None` modern tarayıcılarda `Secure` gerektirir; üretimde HTTPS kullanılmalıdır. Yerel HTTP geliştirmede `SameSite=Lax` tercih edilmelidir. |
-| `secure` | `boolean \| 'auto'` | `'auto'` | Secure özniteliği. `'auto'` HTTPS sayfalarında otomatik `true` olur. `sameSite: 'None'` seçildiğinde `Secure` otomatik olarak `true` kabul edilir. |
-| `policyVersion` | `string` | `undefined` | Politika versiyonu. Değişirse mevcut onay geçersiz olur ve banner yeniden gösterilir. |
-| `language` | `string` | `'tr'` | Arayüz dili. `'tr'` ve `'en'` dahili olarak mevcuttur. |
-| `translations` | `Record<string, DeepPartial<TranslationSet>>` | `{}` | Dil geçersiz kılmaları veya yeni dil tanımları. |
-| `theme` | `ThemeConfig` | — | Görsel tema ayarları. |
-| `styleMode` | `'inline' \| 'nonce'` | `'inline'` | CSS enjeksiyon yöntemi. (`external` v1'de desteklenmemektedir.) |
-| `styleNonce` | `string` | `undefined` | CSP nonce değeri (`styleMode: 'nonce'` ile kullanılır). |
-| `policyUrl` | `string` | `undefined` | Çerez politikası belgesi bağlantısı. |
-| `onReady` | `(payload \| null) => void` | — | Başlangıçta bir kez çağrılır. Onay varsa `payload`, yoksa `null`. |
-| `onSave` | `(payload) => void` | — | Her kaydetme işleminde çağrılır (tümü kabul, tümü reddet, özel). |
-| `onAccept` | `(payload) => void` | — | Yalnızca "Tümünü Kabul Et" seçildiğinde çağrılır. |
-| `onReject` | `(payload) => void` | — | Yalnızca "Tümünü Reddet" seçildiğinde çağrılır. |
-| `onChange` | `(payload) => void` | — | Yalnızca "Tercihleri Kaydet" (özel seçim) ile çağrılır. |
+### Static Methods
+
+| Method | Description |
+|--------|-------------|
+| `CookieConsentManager.init(config)` | Starts the banner. If stored consent exists, `onReady` receives a `ConsentPayload`; otherwise the banner is shown and `onReady` receives `null`. Calling `init` again destroys the previous instance first. |
+| `CookieConsentManager.destroy()` | Removes the banner/modal DOM, removes injected styles, and resets the instance. It does not delete consent cookies. |
+| `CookieConsentManager.setLanguage(lang)` | Changes the UI language at runtime. The active banner/modal is recreated. |
+| `CookieConsentManager.getPreferences()` | Returns stored preferences, or `null` if there is no valid consent. |
+| `CookieConsentManager.reset()` | Deletes preference cookies and shows the banner again. |
 
 ---
 
-### Kategori Yapılandırması (CategoryConfig)
+### Configuration (CookieConsentConfig)
 
-| Özellik | Tür | Açıklama |
-|---------|-----|----------|
-| `id` | `string` | Kategori tanımlayıcısı. Tercih çerezlerinde anahtar olarak kullanılır. |
-| `required` | `boolean` | `true` ise kategori devre dışı bırakılamaz ve her zaman kabul edilir. |
-| `title` | `LocalizedString` | Kategori başlığı. `string` veya `{ tr: '...', en: '...' }`. |
-| `description` | `LocalizedString` | Kategori açıklaması. |
-| `cookies` | `CookieItem[]` | Kategorideki çerezlerin listesi. Tablo görünümünde gösterilir. |
-
----
-
-### Çerez Öğesi (CookieItem)
-
-| Özellik | Tür | Açıklama |
-|---------|-----|----------|
-| `name` | `string` | Çerez adı. |
-| `provider` | `LocalizedString` | Çerez sağlayıcısı. |
-| `description` | `LocalizedString` | Çerez açıklaması (isteğe bağlı). |
-| `purpose` | `LocalizedString` | Çerez amacı. |
-| `expiry` | `LocalizedString` | Çerez geçerlilik süresi. |
-| `party` | `'first' \| 'third'` | Birinci taraf veya üçüncü taraf. |
-
----
-
-### Tema Yapılandırması (ThemeConfig)
-
-| Özellik | Tür | Varsayılan | Açıklama |
-|---------|-----|-----------|----------|
-| `primaryColor` | `string` | `'#FF671D'` | Ana renk (butonlar, toggle'lar). |
-| `secondaryColor` | `string` | `undefined` | İkincil renk (isteğe bağlı vurgu). |
-| `textColor` | `string` | `'#272727'` | Metin rengi. |
-| `backgroundColor` | `string` | `'#ffffff'` | Arka plan rengi. |
-| `position` | `'bottom' \| 'top'` | `'bottom'` | Banner konumu. |
-| `borderRadius` | `string` | `'20px'` | Kenar yuvarlaklığı. |
-| `headerImage` | `'default' \| 'none' \| string` | `'default'` | Başlık görseli. Ayrıntılı bilgi için [başlık görseli](#başlik-gorseli-header-image) bölümüne bakın. |
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `categories` | `CategoryConfig[]` | - | **Required.** Cookie categories shown to the user. |
+| `domain` | `string` | `undefined` | Cookie domain. If omitted, cookies are host-only, which is recommended for localhost/IP usage. |
+| `path` | `string` | `'/'` | Cookie path. |
+| `cookieExpiry` | `number` | `365` | Consent cookie lifetime in days. |
+| `cookiePrefix` | `string` | `'ccm_'` | Prefix used for consent cookie names. |
+| `sameSite` | `'Lax' \| 'Strict' \| 'None'` | `'Lax'` | SameSite attribute. `SameSite=None` requires `Secure` in modern browsers, so it should be used over HTTPS. For local HTTP development, prefer `SameSite=Lax`. |
+| `secure` | `boolean \| 'auto'` | `'auto'` | Secure attribute. `'auto'` enables Secure automatically on HTTPS pages. If `sameSite: 'None'` is selected, Secure is treated as required and is added automatically. |
+| `policyVersion` | `string` | `undefined` | Policy version. If it changes, existing consent becomes invalid and the banner is shown again. |
+| `language` | `string` | `'tr'` | UI language. Built-in languages are `'tr'` and `'en'`. |
+| `translations` | `Record<string, DeepPartial<TranslationSet>>` | `{}` | UI translation overrides or new language definitions. |
+| `theme` | `ThemeConfig` | - | Visual theme options. |
+| `styleMode` | `'inline' \| 'nonce'` | `'inline'` | CSS injection mode. `external` is not supported in v1. |
+| `styleNonce` | `string` | `undefined` | CSP nonce value used with `styleMode: 'nonce'`. |
+| `policyUrl` | `string` | `undefined` | URL of the cookie policy document. |
+| `onReady` | `(payload \| null) => void` | - | Called once during initialization. Receives `payload` if valid consent exists, otherwise `null`. |
+| `onSave` | `(payload) => void` | - | Called after every save action: accept all, reject all, or custom preferences. |
+| `onAccept` | `(payload) => void` | - | Called only when the user selects "Accept All". |
+| `onReject` | `(payload) => void` | - | Called only when the user selects "Reject All". |
+| `onChange` | `(payload) => void` | - | Called only when the user saves custom preferences. |
 
 ---
 
-### Onay Verisi (ConsentPayload)
+### Category Configuration (CategoryConfig)
 
-Tüm callback'lerin aldığı `payload` nesnesi:
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `string` | Category identifier. It is used as the key in the preferences object. |
+| `required` | `boolean` | If `true`, the category cannot be disabled and is always accepted. |
+| `title` | `LocalizedString` | Category title. A `string` or an object such as `{ tr: '...', en: '...' }`. |
+| `description` | `LocalizedString` | Category description. |
+| `cookies` | `CookieItem[]` | List of cookies in this category. Displayed in the details table. |
+
+---
+
+### Cookie Item (CookieItem)
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `name` | `string` | Cookie name. |
+| `provider` | `LocalizedString` | Cookie provider. |
+| `description` | `LocalizedString` | Optional cookie description. |
+| `purpose` | `LocalizedString` | Cookie purpose. |
+| `expiry` | `LocalizedString` | Cookie lifetime. |
+| `party` | `'first' \| 'third'` | First-party or third-party cookie. |
+
+---
+
+### Theme Configuration (ThemeConfig)
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `primaryColor` | `string` | `'#FF671D'` | Primary color used for buttons and toggles. |
+| `secondaryColor` | `string` | `undefined` | Optional secondary accent color. |
+| `textColor` | `string` | `'#272727'` | Text color. |
+| `backgroundColor` | `string` | `'#ffffff'` | Background color. |
+| `position` | `'bottom' \| 'top'` | `'bottom'` | Banner position. |
+| `borderRadius` | `string` | `'20px'` | Border radius. |
+| `headerImage` | `'default' \| 'none' \| string` | `'default'` | Modal header image. See [Header Image](#header-image). |
+
+---
+
+### Consent Payload (ConsentPayload)
+
+All callbacks receive this `payload` object:
 
 ```typescript
 interface ConsentPayload {
@@ -477,62 +500,62 @@ interface ConsentPayload {
   preferences: Record<string, boolean>;    // { required: true, analytics: false }
   acceptedCategories: string[];            // ['required', 'analytics']
   rejectedCategories: string[];            // ['marketing']
-  savedAt: string;                         // ISO tarih dizesi
-  policyVersion?: string;                  // Politika versiyonu
+  savedAt: string;                         // ISO timestamp
+  policyVersion?: string;                  // Policy version
 }
 ```
 
 ---
 
-## Yazılan Çerezler
+## Written Cookies
 
-Kullanıcı tercihini kaydettiğinde aşağıdaki çerezler oluşturulur (varsayılan `ccm_` ön eki ile):
+When the user saves a choice, the following cookies are written with the default `ccm_` prefix:
 
-| Çerez | Değer | Örnek |
-|-------|-------|-------|
-| `ccm_decision` | `accepted_all`, `rejected_all` veya `custom` | `accepted_all` |
-| `ccm_preferences` | JSON formatında tercih nesnesi | `%7B%22required%22%3Atrue%2C%22analytics%22%3Afalse%7D` |
-| `ccm_saved_at` | ISO tarih dizesi | `2026-04-28T12:00:00.000Z` |
-| `ccm_policy_version` | Yapılandırılan versiyon dizesi | `1.2` |
+| Cookie | Value | Example |
+|--------|-------|---------|
+| `ccm_decision` | `accepted_all`, `rejected_all`, or `custom` | `accepted_all` |
+| `ccm_preferences` | JSON preferences object | `%7B%22required%22%3Atrue%2C%22analytics%22%3Afalse%7D` |
+| `ccm_saved_at` | ISO timestamp | `2026-04-28T12:00:00.000Z` |
+| `ccm_policy_version` | Configured policy version | `1.2` |
 
-`cookiePrefix` değiştirildiğinde çerez adları buna göre değişir (ör. `myapp_decision`).
-
----
-
-## Geri Çağırma (Callback) Yaşam Döngüsü
-
-```
-init() çağrılır
-  │
-  ├─ Önceki onay VAR ──▶ onReady(payload)
-  │
-  └─ Önceki onay YOK ──▶ onReady(null) + Banner gösterilir
-                            │
-        ┌───────────────────┼───────────────────┐
-        │                   │                   │
-   Tümünü Kabul       Tümünü Reddet      Tercihleri Kaydet
-        │                   │                   │
-   onSave(payload)    onSave(payload)    onSave(payload)
-   onAccept(payload)  onReject(payload)  onChange(payload)
-```
-
-- **`onReady`**: `init()` sırasında bir kez çağrılır. Mevcut onay varsa `payload`, yoksa `null` alır.
-- **`onSave`**: Her kaydetme işleminde çağrılır (kabul, red, özel). Sunucu tarafı eşitleme veya genel işlemler için idealdir.
-- **`onAccept`**: Yalnızca "Tümünü Kabul Et" seçildiğinde.
-- **`onReject`**: Yalnızca "Tümünü Reddet" seçildiğinde.
-- **`onChange`**: Yalnızca özel tercih kaydedildiğinde.
-
-> **Not:** Callback'ler (özellikle `onReady`) birden fazla kez tetiklenebilir (ör. `setLanguage()` çağrısında). Script loader callback'leri idempotent tasarlanmalıdır.
+If `cookiePrefix` is changed, cookie names change accordingly, for example `myapp_decision`.
 
 ---
 
-## CSP Uyumluluğu
+## Callback Lifecycle
 
-Paket, Content Security Policy (CSP) kurallarına uygun iki farklı CSS enjeksiyon yöntemi sunar.
+```text
+init() is called
+  |
+  |-- Stored consent EXISTS -> onReady(payload)
+  |
+  `-- Stored consent MISSING -> onReady(null) + banner is shown
+                                |
+              ---------------------------------------
+              |                  |                  |
+        Accept All          Reject All       Save Preferences
+              |                  |                  |
+        onSave(payload)    onSave(payload)    onSave(payload)
+        onAccept(payload)  onReject(payload)  onChange(payload)
+```
 
-### Varsayılan Mod (Inline)
+- **`onReady`** is called during `init()`. It receives a payload when valid consent exists, otherwise `null`.
+- **`onSave`** is called after every save action: accept, reject, or custom preferences. It is a good place for synchronization or common side effects.
+- **`onAccept`** is called only when the user selects "Accept All".
+- **`onReject`** is called only when the user selects "Reject All".
+- **`onChange`** is called only when the user saves custom preferences.
 
-`styleMode: 'inline'` — CSS bir `<style>` etiketi olarak enjekte edilir. Çoğu projede sorunsuz çalışır.
+> **Note:** Callbacks, especially `onReady`, may be triggered more than once, for example after `setLanguage()`. Script loader callbacks should be idempotent.
+
+---
+
+## CSP Compatibility
+
+The package supports two CSS injection modes for Content Security Policy (CSP) compatibility.
+
+### Default Mode (Inline)
+
+`styleMode: 'inline'` injects CSS as a `<style>` tag. This works in most projects.
 
 **Apache:**
 
@@ -546,9 +569,9 @@ Header always set Content-Security-Policy "default-src 'self'; style-src 'self' 
 add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'unsafe-inline';" always;
 ```
 
-### Nonce Modu
+### Nonce Mode
 
-`styleMode: 'nonce'` — CSP `style-src` yönergesinde nonce kullanılıyorsa bu modu seçin. Nonce değerini `styleNonce` ile iletin.
+Use `styleMode: 'nonce'` when your CSP `style-src` directive uses a nonce. Pass the nonce through `styleNonce`.
 
 ```typescript
 CookieConsentManager.init({
@@ -570,24 +593,24 @@ Header always set Content-Security-Policy "default-src 'self'; style-src 'self' 
 add_header Content-Security-Policy "default-src 'self'; style-src 'self' 'nonce-$csp_nonce';" always;
 ```
 
-> **Not:** Strict `style-src 'self'` kullanan projeler (inline ve nonce yasaklayan CSP) için external CSS modu v1'de desteklenmemektedir. Bu senaryoda `nonce` modu önerilir.
+> **Note:** Strict `style-src 'self'` projects that disallow both inline styles and nonce-based styles require external CSS. External CSS mode is not supported in v1. Use nonce mode when possible.
 
 ---
 
-## Başlık Görseli (Header Image)
+## Header Image
 
-Banner'ın üst kısmında gösterilen dekoratif görsel, üç şekilde yönetilebilir:
+The modal can display a decorative header image. It can be configured in three ways:
 
-| Değer | Açıklama |
-|-------|----------|
-| `'default'` (varsayılan) | Pakete gömülü çerez temalı SVG görsel kullanılır. Ek kurulum gerekmez. |
-| `'none'` | Başlık görseli kaldırılır, yalnızca metin gösterilir. |
-| `'https://...'` | Özel bir görsel URL'si kullanılır. |
+| Value | Description |
+|-------|-------------|
+| `'default'` | Uses the cookie-themed SVG image embedded in the package. No asset path or extra setup is required. |
+| `'none'` | Removes the header image and shows text only. |
+| `'https://...'` or any image URL | Uses a custom image URL. |
 
 ```typescript
 CookieConsentManager.init({
   theme: {
-    headerImage: 'none'   // Görseli kaldır
+    headerImage: 'none'
   },
   categories: [/* ... */]
 });
@@ -604,34 +627,34 @@ CookieConsentManager.init({
 
 ---
 
-## Çoklu Dil (i18n) Çözümleme
+## Internationalization (i18n)
 
-### Dahili Diller
+### Built-In Languages
 
-Paket `tr` (Türkçe) ve `en` (İngilizce) arayüz çevirilerini dahili olarak içerir. Herhangi bir çeviri dosyası sağlamadan bu dilleri kullanabilirsiniz.
+The package includes built-in UI translations for `tr` and `en`. You can use these languages without providing translation files.
 
-### Çözümleme Önceliği
+### Resolution Priority
 
+```text
+User-defined translations -> built-in translation (tr / en) -> en fallback
 ```
-Kullanıcı tanımlı çeviri (translations) → Dahili çeviri (tr / en) → en yedek (fallback)
-```
 
-1. **Kullanıcı tanımı**: `translations` alanında belirtilen dil ve anahtarlar en yüksek önceliğe sahiptir.
-2. **Dahili çeviri**: Kullanıcı tanımında bulunmayan anahtarlar dahili çeviriden alınır. Seçilen dilin dahili çevirisi yoksa İngilizce (`en`) kullanılır.
-3. **en yedek**: Hiçbir kaynaktan çeviri bulunamazsa `en` fallback olarak kullanılır.
+1. **User-defined translations** from the `translations` option have the highest priority.
+2. **Built-in translations** fill missing keys. If the selected language is not built in, English is used.
+3. **English fallback** is used if no translation can be resolved from another source.
 
-### Mevcut Dili Geçersiz Kılma
+### Overriding an Existing Language
 
-Yalnızca değiştirmek istediğiniz anahtarları belirtmeniz yeterlidir; eksik anahtarlar otomatik olarak dahili çeviriden tamamlanır:
+You only need to provide the keys you want to change. Missing keys are filled from the built-in translations:
 
 ```typescript
 CookieConsentManager.init({
-  language: 'tr',
+  language: 'en',
   translations: {
-    tr: {
+    en: {
       banner: {
-        acceptAll: 'Hepsini Kabul Et',
-        rejectAll: 'Hepsini Reddet'
+        acceptAll: 'Allow All',
+        rejectAll: 'Decline All'
       }
     }
   },
@@ -639,29 +662,29 @@ CookieConsentManager.init({
 });
 ```
 
-### Kategori ve Çerez Metinleri
+### Category and Cookie Text
 
-Kategori/çerez metinleri `LocalizedString` türündedir. Tekil dil desteğinde düz `string`, çoklu dil desteğinde nesne kullanın:
+Category and cookie text values use the `LocalizedString` type. Use a plain `string` for a single language, or an object for multiple languages:
 
 ```typescript
-// Tek dil
-title: 'Analitik Çerezler'
+// Single language
+title: 'Analytics Cookies'
 
-// Çoklu dil
-title: { tr: 'Analitik Çerezler', en: 'Analytics Cookies', de: 'Analyse-Cookies' }
+// Multiple languages
+title: { en: 'Analytics Cookies', de: 'Analyse-Cookies' }
 ```
 
-Çözümleme algoritması seçili `language` değerini nesnede arar; bulamazsa ilk bulunan değeri kullanır.
+The resolver looks for the selected `language` key first. If it cannot find it, it uses the first available value in the object.
 
 ---
 
-## Geliştirici Sorumluluğu
+## Developer Responsibility
 
-> **Bu paket betiklerinizi yönetmez.** Aşağıdaki kurallara uymanız beklenir:
+> **This package does not manage your scripts.** You are expected to follow these rules:
 
-1. **Zorunlu olmayan betikleri statik olarak HTML'e eklemeyin.** Analitik, reklam, sosyal medya vb. betikleri doğrudan `<script>` etiketi ile sayfaya eklemeyin.
+1. **Do not statically add optional scripts to HTML.** Do not place analytics, advertising, social media, or other optional third-party scripts directly in the page before consent logic runs.
 
-2. **Tercihleri okuyarak betik yükleyin.** `onReady`, `onSave`, `onAccept` callback'lerini veya `ccm_preferences` çerezini kullanarak betikleri koşullu olarak yükleyin:
+2. **Load scripts based on preferences.** Use `onReady`, `onSave`, `onAccept`, or the `ccm_preferences` cookie to conditionally load optional integrations:
 
 ```typescript
 CookieConsentManager.init({
@@ -683,12 +706,12 @@ CookieConsentManager.init({
 });
 ```
 
-3. **Paket hiçbir betik enjekte etmez, kaldırmaz veya ağ isteğini engellemez.** Yalnızca kullanıcı tercihini toplar ve çerez olarak saklar. Betik yönetimi tamamen geliştiricinin sorumluluğundadır.
+3. **The package does not inject, remove, delete, or block scripts, cookies, or network requests.** It only collects the user's preference and stores it as cookies. Script and integration management remains the developer's responsibility.
 
-4. **Sunucu tarafında kontrol yapın.** İstemci tarafı kontrole ek olarak, sunucu tarafında da `ccm_preferences` çerezini okuyarak betik enjeksiyonunu kontrol edebilirsiniz. Bu, CSP uyumlu ve güvenilir bir yaklaşımdır.
+4. **Use server-side checks when needed.** In addition to client-side checks, you can read the `ccm_preferences` cookie server-side and control script rendering there. This can be a more predictable approach for CSP-heavy projects.
 
 ---
 
-## Lisans
+## License
 
 [MIT](./LICENSE) &copy; Zasetsu
