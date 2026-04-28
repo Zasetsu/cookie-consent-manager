@@ -1,5 +1,5 @@
 {
-  "name": "cookie-consent-manager",
+  "name": "@zasetsu/cookie-consent-manager",
   "version": "1.0.0",
   "description": "Framework-agnostic cookie consent preference collection and storage module",
   "main": "dist/cookie-consent-manager.umd.js",

@@ -1,9 +1,9 @@
-# cookie-consent-manager
+# @zasetsu/cookie-consent-manager
 
 A lightweight, framework-agnostic module for collecting and storing cookie consent preferences. It provides a cookie banner and preference management modal that can support KVKK/GDPR compliance workflows.
 
 [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
-[![npm version](https://img.shields.io/npm/v/cookie-consent-manager.svg)](https://www.npmjs.com/package/cookie-consent-manager)
+[![npm version](https://img.shields.io/npm/v/%40zasetsu%2Fcookie-consent-manager.svg)](https://www.npmjs.com/package/@zasetsu/cookie-consent-manager)
 
 ---
 
@@ -47,7 +47,7 @@ This package is a preference collection tool. It can support KVKK/GDPR complianc
 ## Installation
 
 ```bash
-npm install cookie-consent-manager
+npm install @zasetsu/cookie-consent-manager
 ```
 
 ---
@@ -55,7 +55,7 @@ npm install cookie-consent-manager
 ## Quick Start
 
 ```html
-<script src="node_modules/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
+<script src="node_modules/@zasetsu/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
 <script>
   CookieConsentManager.init({
     language: 'en',
@@ -107,7 +107,7 @@ The UMD build exposes a global `CookieConsentManager` object. It can be used dir
 <body>
   <h1>My Website</h1>
 
-  <script src="node_modules/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
+  <script src="node_modules/@zasetsu/cookie-consent-manager/dist/cookie-consent-manager.umd.js"></script>
   <script>
     CookieConsentManager.init({
       language: 'en',
@@ -158,7 +158,7 @@ The UMD build exposes a global `CookieConsentManager` object. It can be used dir
 Use the ESM build with modern bundlers such as Vite, Webpack, or Rollup.
 
 ```typescript
-import CookieConsentManager from 'cookie-consent-manager';
+import CookieConsentManager from '@zasetsu/cookie-consent-manager';
 
 CookieConsentManager.init({
   language: 'en',
